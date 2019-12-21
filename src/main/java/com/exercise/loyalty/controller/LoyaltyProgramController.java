@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.exercise.loyalty.model.WalletTransaction;
 import com.exercise.loyalty.repository.WalletTransactionRepository;
-import com.exercise.loyalty.service.TransactionServiceImpl;
+import com.exercise.loyalty.service.TransactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ import com.exercise.loyalty.repository.TransactionRepository;
 public class LoyaltyProgramController {
 
 	private TransactionRepository transactionRepository;
-	private TransactionServiceImpl loyaltyProgramService;
+	private TransactionService loyaltyProgramService;
 	private WalletTransactionRepository walletTransactionRepository;
 	
 	private Logger logger = LoggerFactory.getLogger(LoyaltyProgramController.class);
@@ -30,7 +30,7 @@ public class LoyaltyProgramController {
 	@Autowired
 	public LoyaltyProgramController(
 			TransactionRepository transactionRepository,
-			TransactionServiceImpl loyaltyProgramService,
+			TransactionService loyaltyProgramService,
 			WalletTransactionRepository walletTransactionRepository) {
 		this.transactionRepository = transactionRepository;
 		this.loyaltyProgramService = loyaltyProgramService;

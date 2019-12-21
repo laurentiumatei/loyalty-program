@@ -15,16 +15,16 @@ import java.util.Date;
 
 @Service
 @Transactional
-public class TransactionServiceImpl {
+public class TransactionServiceImpl implements TransactionService {
 
     private final TransactionRepository transactionRepository;
-    private final WalletTransactionServiceImpl walletTransactionService;
+    private final WalletTransactionService walletTransactionService;
     private final PointsCalculator pointsCalculator;
 
     @Autowired
     public TransactionServiceImpl(
             TransactionRepository transactionRepository,
-            WalletTransactionServiceImpl walletTransactionService,
+            WalletTransactionService walletTransactionService,
             PointsCalculator pointsCalculator) {
 
         this.transactionRepository = transactionRepository;
@@ -32,6 +32,7 @@ public class TransactionServiceImpl {
         this.pointsCalculator = pointsCalculator;
     }
 
+    @Override
     public void addTransaction(Transaction transaction)
     {
         transactionRepository.save(transaction);

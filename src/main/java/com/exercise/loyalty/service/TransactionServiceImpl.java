@@ -6,8 +6,6 @@ import com.exercise.loyalty.model.WalletTransaction;
 import com.exercise.loyalty.model.WalletTransaction.PointsType;
 import com.exercise.loyalty.model.WalletTransaction.TransactionType;
 import com.exercise.loyalty.repository.TransactionRepository;
-import com.exercise.loyalty.repository.WalletRepository;
-import com.exercise.loyalty.repository.WalletTransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,23 +15,20 @@ import java.util.Date;
 
 @Service
 @Transactional
-public class LoyaltyProgramServiceImpl {
+public class TransactionServiceImpl {
 
     private final TransactionRepository transactionRepository;
-    private final WalletTransactionRepository walletTransactionRepository;
-    private final WalletRepository walletRepository;
+    private final WalletTransactionServiceImpl walletTransactionService;
     private final PointsCalculator pointsCalculator;
 
     @Autowired
-    public LoyaltyProgramServiceImpl(
+    public TransactionServiceImpl(
             TransactionRepository transactionRepository,
-            WalletTransactionRepository walletTransactionRepository,
-            WalletRepository walletRepository,
+            WalletTransactionServiceImpl walletTransactionService,
             PointsCalculator pointsCalculator) {
 
         this.transactionRepository = transactionRepository;
-        this.walletTransactionRepository = walletTransactionRepository;
-        this.walletRepository = walletRepository;
+        this.walletTransactionService = walletTransactionService;
         this.pointsCalculator = pointsCalculator;
     }
 
@@ -50,7 +45,6 @@ public class LoyaltyProgramServiceImpl {
                 walletTransaction.setTransactionType(TransactionType.CREDIT);
                 break;
             case WALLET:
-                //TODO Add validation for available points
                 BigDecimal availablePointsSpent = pointsCalculator.calculateAvailablePointsSpent(transaction.getValue());
                 walletTransaction = createWalletTransaction(transaction, availablePointsSpent);
                 walletTransaction.setPointsType(PointsType.AVAILABLE);
@@ -60,8 +54,7 @@ public class LoyaltyProgramServiceImpl {
                 throw new RuntimeException("Fund source not supported: " + transaction.getFundSource());
         }
 
-
-        walletTransactionRepository.save(walletTransaction);
+        walletTransactionService.addWalletTransaction(walletTransaction);
     }
 
     private WalletTransaction createWalletTransaction(Transaction transaction, BigDecimal points) {

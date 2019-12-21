@@ -23,21 +23,20 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public void addToWallet(WalletTransaction walletTransaction)
     {
+        Wallet wallet = walletRepository.findByCustomerId(walletTransaction.getCustomerId())
+                .orElseGet(() -> createWallet(walletTransaction.getCustomerId()));
+
         if (walletTransaction.getTransactionType() == WalletTransaction.TransactionType.DEBIT &&
-                !walletHasEnoughPoints(walletTransaction))
+                !walletHasEnoughPoints(wallet, walletTransaction))
         {
             throw new RuntimeException("Customer "+ walletTransaction.getCustomerId() +
                     " does not have enough " + walletTransaction.getPointsType().toString().toLowerCase() +
                     " points.");
         }
-        Wallet wallet = walletRepository.findByCustomerId(walletTransaction.getCustomerId())
-                .orElseThrow(() -> new RuntimeException("Cannot find wallet for customerId: " + walletTransaction.getCustomerId()));
     }
 
-    private boolean walletHasEnoughPoints(WalletTransaction walletTransaction) {
+    private boolean walletHasEnoughPoints(Wallet wallet, WalletTransaction walletTransaction) {
 
-        Wallet wallet = walletRepository.findByCustomerId(walletTransaction.getCustomerId())
-                .orElseGet(() -> createWallet(walletTransaction.getCustomerId()));
         switch (walletTransaction.getPointsType()) {
             case PENDING:
                 return wallet.getPendingPoints().compareTo(walletTransaction.getPointsAmount()) >= 0;
@@ -53,7 +52,7 @@ public class WalletServiceImpl implements WalletService {
         wallet.setCustomerId(customerId);
         wallet.setPendingPoints(BigDecimal.ZERO);
         wallet.setAvailablePoints(BigDecimal.ZERO);
-        walletRepository.save(wallet);
+        walletRepository.saveAndFlush(wallet);
         return wallet;
     }
 }

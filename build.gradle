@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '2.2.2.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.8.RELEASE'
 	id 'java'
+	id 'groovy'
 }
 
 group = 'com.exercise'
@@ -27,8 +28,5 @@ dependencies {
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
-}
-
-test {
-	useJUnitPlatform()
+	testCompile "org.spockframework:spock-core:1.1-groovy-2.4-rc-2"
 }

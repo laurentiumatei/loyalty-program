@@ -23,16 +23,21 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public void addToWallet(WalletTransaction walletTransaction)
     {
-        Wallet wallet = walletRepository.findByCustomerId(walletTransaction.getCustomerId())
-                .orElseGet(() -> createWallet(walletTransaction.getCustomerId()));
+        Wallet wallet = getWallet(walletTransaction.getCustomerId());
 
         if (walletTransaction.getTransactionType() == WalletTransaction.TransactionType.DEBIT &&
                 !walletHasEnoughPoints(wallet, walletTransaction))
         {
-            throw new RuntimeException("Customer "+ walletTransaction.getCustomerId() +
+            throw new RuntimeException("Customer " + walletTransaction.getCustomerId() +
                     " does not have enough " + walletTransaction.getPointsType().toString().toLowerCase() +
                     " points.");
         }
+    }
+
+    @Override
+    public Wallet getWallet(String customerId) {
+        return walletRepository.findByCustomerId(customerId)
+                .orElseGet(() -> createWallet(customerId));
     }
 
     private boolean walletHasEnoughPoints(Wallet wallet, WalletTransaction walletTransaction) {

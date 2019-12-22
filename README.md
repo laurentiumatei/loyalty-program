@@ -1,5 +1,5 @@
 # loyalty-program
-Simple loyalty program Spring Boot REST service for acquiring points corresponding to the money spent.
+Simple Spring Boot REST service for acquiring points corresponding to the money spent in a transaction.
 
 ## Usage
 

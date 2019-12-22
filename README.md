@@ -19,13 +19,17 @@ Fields:
  - *fundSource*: source of funds for the transaction: CASH - when transaction is payed with real money, WALLET - when transaction is payed with money converted from available points
 
 **Get transaction history for a customer id:**
+
 GET: http://host:8080/api/history/{customerId}
 
 **Get the balance for a customer id:**
+
 GET: http://localhost:8080/api/balance/{customerId}
 
 **Trigger allocation of available points from pending points - for testing purposes only:**
+
 GET: http://localhost:8080/api/allocateAvailablePoints
+
 Note:
 This command should be used only for testing purpose on a Sunday. *It does not work in other days of the week.*
 Automatic triggering should take place every Sunday at 23:00.

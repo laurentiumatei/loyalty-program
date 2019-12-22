@@ -20,10 +20,9 @@ import java.util.List;
 @Transactional
 public class WalletServiceImpl implements WalletService {
 
+    private static final int WEEKS_SINCE_LAST_TRANSACTION = 5;
     private final WalletRepository walletRepository;
     private final WalletTransactionRepository walletTransactionRepository;
-
-    private static final int WEEKS_SINCE_LAST_TRANSACTION = 5;
 
     @Autowired
     public WalletServiceImpl(WalletRepository walletRepository, WalletTransactionRepository walletTransactionRepository) {
@@ -32,13 +31,11 @@ public class WalletServiceImpl implements WalletService {
     }
 
     @Override
-    public void addToWallet(WalletTransaction walletTransaction)
-    {
+    public void addToWallet(WalletTransaction walletTransaction) {
         Wallet wallet = getWallet(walletTransaction.getCustomerId());
 
         if (walletTransaction.getTransactionType() == TransactionType.DEBIT &&
-                !walletHasEnoughPoints(wallet, walletTransaction))
-        {
+                !walletHasEnoughPoints(wallet, walletTransaction)) {
             throw new RuntimeException("Customer " + walletTransaction.getCustomerId() +
                     " does not have enough " + walletTransaction.getPointsType().toString().toLowerCase() +
                     " points.");
@@ -52,7 +49,7 @@ public class WalletServiceImpl implements WalletService {
                 wallet.setPendingPoints(wallet.getPendingPoints().add(pointsToAdd));
                 break;
             default:
-                throw new RuntimeException("Points type not supported: "+walletTransaction.getPointsType());
+                throw new RuntimeException("Points type not supported: " + walletTransaction.getPointsType());
         }
         walletRepository.save(wallet);
     }
@@ -60,8 +57,7 @@ public class WalletServiceImpl implements WalletService {
     @Override
     public Wallet getWallet(String customerId) {
         Wallet wallet = walletRepository.findByCustomerId(customerId).orElseGet(() -> createWallet(customerId));
-        if (!isFlat(wallet) && isPreviousCreditPendingPointsTransactionTooOld(customerId))
-        {
+        if (!isFlat(wallet) && isPreviousCreditPendingPointsTransactionTooOld(customerId)) {
             return resetWallet(wallet);
         }
 
@@ -82,7 +78,7 @@ public class WalletServiceImpl implements WalletService {
             case AVAILABLE:
                 return wallet.getAvailablePoints().compareTo(walletTransaction.getPointsAmount()) >= 0;
             default:
-                throw new RuntimeException("Points type not supported: "+walletTransaction.getPointsType());
+                throw new RuntimeException("Points type not supported: " + walletTransaction.getPointsType());
         }
     }
 
@@ -94,20 +90,18 @@ public class WalletServiceImpl implements WalletService {
         return walletRepository.save(wallet);
     }
 
-    private BigDecimal getPointsToAdd(WalletTransaction walletTransaction)
-    {
+    private BigDecimal getPointsToAdd(WalletTransaction walletTransaction) {
         switch (walletTransaction.getTransactionType()) {
             case DEBIT:
                 return walletTransaction.getPointsAmount().negate();
             case CREDIT:
                 return walletTransaction.getPointsAmount();
             default:
-                throw new RuntimeException("Transaction type not supported: "+walletTransaction.getTransactionType());
+                throw new RuntimeException("Transaction type not supported: " + walletTransaction.getTransactionType());
         }
     }
 
-    private boolean isPreviousCreditPendingPointsTransactionTooOld(String customerId)
-    {
+    private boolean isPreviousCreditPendingPointsTransactionTooOld(String customerId) {
         List<WalletTransaction> walletTransactions =
                 walletTransactionRepository.findAllByCustomerIdAndPointsTypeAndTransactionTypeOrderByTimestampDesc(
                         customerId, WalletTransaction.PointsType.PENDING, TransactionType.CREDIT);

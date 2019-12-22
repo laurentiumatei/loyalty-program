@@ -1,9 +1,8 @@
 package com.exercise.loyalty.repository;
 
+import com.exercise.loyalty.model.Transaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import com.exercise.loyalty.model.Transaction;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {

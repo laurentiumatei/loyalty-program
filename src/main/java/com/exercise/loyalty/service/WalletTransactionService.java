@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface WalletTransactionService {
     void addWalletTransaction(WalletTransaction walletTransaction);
+
     List<WalletTransaction> getWalletTransactions(String customerId);
 }

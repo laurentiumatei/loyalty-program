@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 import static com.exercise.loyalty.helper.WalletTransactionHelper.createWalletTransaction;
 
@@ -35,12 +34,10 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
-    public void addTransaction(Transaction transaction)
-    {
+    public void addTransaction(Transaction transaction) {
         transactionRepository.save(transaction);
         WalletTransaction walletTransaction;
-        switch (transaction.getFundSource())
-        {
+        switch (transaction.getFundSource()) {
             case CASH:
                 BigDecimal pendingPoints = pointsCalculator.calculatePendingPoints(transaction.getValue());
                 walletTransaction = createWalletTransaction(transaction, pendingPoints);

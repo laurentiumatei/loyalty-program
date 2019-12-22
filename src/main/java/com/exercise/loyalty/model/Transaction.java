@@ -1,57 +1,52 @@
 package com.exercise.loyalty.model;
 
+import javax.persistence.*;
 import java.math.BigDecimal;
-
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 
 @Entity
 public class Transaction {
-	@Id
-	@GeneratedValue
-	private Long id;
-	private String customerId;
-	private BigDecimal value;
-	
-	@Enumerated(EnumType.STRING)
-	private FundSource fundSource;
+    @Id
+    @GeneratedValue
+    private Long id;
+    private String customerId;
+    private BigDecimal value;
 
-	public Long getId() {
-		return id;
-	}
+    @Enumerated(EnumType.STRING)
+    private FundSource fundSource;
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public BigDecimal getValue() {
-		return value;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setValue(BigDecimal value) {
-		this.value = value;
-	}
+    public BigDecimal getValue() {
+        return value;
+    }
 
-	public String getCustomerId() {
-		return customerId;
-	}
+    public void setValue(BigDecimal value) {
+        this.value = value;
+    }
 
-	public void setCustomerId(String customerId) {
-		this.customerId = customerId;
-	}
+    public String getCustomerId() {
+        return customerId;
+    }
 
-	public FundSource getFundSource() {
-		return fundSource;
-	}
+    public void setCustomerId(String customerId) {
+        this.customerId = customerId;
+    }
 
-	public void setFundSource(FundSource fundSource) {
-		this.fundSource = fundSource;
-	}
+    public FundSource getFundSource() {
+        return fundSource;
+    }
 
-	public enum FundSource {
-		CASH, WALLET
-	}
+    public void setFundSource(FundSource fundSource) {
+        this.fundSource = fundSource;
+    }
+
+    public enum FundSource {
+        CASH, WALLET
+    }
 }

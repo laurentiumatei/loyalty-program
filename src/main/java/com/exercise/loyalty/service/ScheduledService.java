@@ -18,18 +18,15 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoField;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 @Service
 @Transactional
 public class ScheduledService {
 
-    private Logger logger = LoggerFactory.getLogger(ScheduledService.class);
-
+    private static final BigDecimal MINIMUM_PENDING_POINTS = BigDecimal.valueOf(500);
     private final WalletRepository walletRepository;
     private final WalletTransactionRepository walletTransactionRepository;
-
-    private static final BigDecimal MINIMUM_PENDING_POINTS = BigDecimal.valueOf(500);
+    private Logger logger = LoggerFactory.getLogger(ScheduledService.class);
 
     @Autowired
     public ScheduledService(WalletRepository walletRepository, WalletTransactionRepository walletTransactionRepository) {
@@ -38,8 +35,7 @@ public class ScheduledService {
     }
 
     @Scheduled(cron = "0 0 23 * * SUN") //runs every Sunday at 23:00
-    public void allocateAvailablePoints()
-    {
+    public void allocateAvailablePoints() {
         logger.info("Trying to allocate pending points to available points...");
         List<Wallet> wallets = walletRepository.findAll();
         wallets.stream().filter(w -> w.getPendingPoints().compareTo(BigDecimal.ZERO) > 0)
@@ -58,23 +54,21 @@ public class ScheduledService {
         walletRepository.save(wallet);
     }
 
-    private boolean atLeastOneTransactionExistsOnEveryDayOfTheWeek(String customerId)
-    {
-        for (int i = 1; i<= 7; i++) {
+    private boolean atLeastOneTransactionExistsOnEveryDayOfTheWeek(String customerId) {
+        for (int i = 1; i <= 7; i++) {
 
             Date startOfDay = getDateInDayOfWeek(i);
             Date startOfNextDay = getDateStartOfNextDayOfWeek(i);
             List<WalletTransaction> walletTransactions = getWalletTransactionsBetween(customerId, startOfDay, startOfNextDay);
             if (walletTransactions.isEmpty()) {
-            	logger.info("No transactions found on date: " + startOfDay);
+                logger.info("No transactions found on date: " + startOfDay);
                 return false;
             }
         }
         return true;
     }
 
-    private boolean isMinimumAmountSpentThisWeek(String customerId)
-    {
+    private boolean isMinimumAmountSpentThisWeek(String customerId) {
         Date beginningOfWeekDate = getDateInDayOfWeek(1);
 
         List<WalletTransaction> walletTransactions = getWalletTransactionsBetween(customerId, beginningOfWeekDate, new Date());
@@ -83,11 +77,10 @@ public class ScheduledService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         logger.info("Pending points accumulated this week: " + sumOfTransactions);
-        return sumOfTransactions.compareTo(MINIMUM_PENDING_POINTS) >=0 ;
+        return sumOfTransactions.compareTo(MINIMUM_PENDING_POINTS) >= 0;
     }
 
-    private List<WalletTransaction> getWalletTransactionsBetween(String customerId, Date startDate, Date endDate)
-    {
+    private List<WalletTransaction> getWalletTransactionsBetween(String customerId, Date startDate, Date endDate) {
         return walletTransactionRepository.findAllByCustomerIdAndPointsTypeAndTransactionTypeAndTimestampBetween(
                 customerId,
                 WalletTransaction.PointsType.PENDING,

@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class LoyaltyProgramApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(LoyaltyProgramApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(LoyaltyProgramApplication.class, args);
+    }
 }

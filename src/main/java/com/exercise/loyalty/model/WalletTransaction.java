@@ -21,7 +21,7 @@ public class WalletTransaction {
     private Long transactionId;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone="UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss z", timezone="UTC")
     private Date timestamp;
 
     public WalletTransaction() {

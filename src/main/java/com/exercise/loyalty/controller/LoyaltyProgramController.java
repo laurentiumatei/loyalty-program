@@ -2,17 +2,16 @@ package com.exercise.loyalty.controller;
 
 import java.util.List;
 
+import com.exercise.loyalty.model.Wallet;
 import com.exercise.loyalty.model.WalletTransaction;
-import com.exercise.loyalty.repository.WalletTransactionRepository;
 import com.exercise.loyalty.service.TransactionService;
+import com.exercise.loyalty.service.WalletService;
+import com.exercise.loyalty.service.WalletTransactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.exercise.loyalty.model.Transaction;
 import com.exercise.loyalty.repository.TransactionRepository;
@@ -21,26 +20,20 @@ import com.exercise.loyalty.repository.TransactionRepository;
 @RequestMapping("/api/")
 public class LoyaltyProgramController {
 
-	private TransactionRepository transactionRepository;
-	private TransactionService loyaltyProgramService;
-	private WalletTransactionRepository walletTransactionRepository;
+	private final TransactionService loyaltyProgramService;
+	private final WalletTransactionService walletTransactionRepository;
+	private final WalletService walletService;
 	
 	private Logger logger = LoggerFactory.getLogger(LoyaltyProgramController.class);
 
 	@Autowired
 	public LoyaltyProgramController(
-			TransactionRepository transactionRepository,
 			TransactionService loyaltyProgramService,
-			WalletTransactionRepository walletTransactionRepository) {
-		this.transactionRepository = transactionRepository;
+			WalletTransactionService walletTransactionService,
+			WalletService walletService) {
 		this.loyaltyProgramService = loyaltyProgramService;
-		this.walletTransactionRepository = walletTransactionRepository;
-	}
-
-	@RequestMapping(value = "transactions", method = RequestMethod.GET)
-	public List<Transaction> list()
-	{
-		return transactionRepository.findAll();
+		this.walletTransactionRepository = walletTransactionService;
+		this.walletService = walletService;
 	}
 
 	@RequestMapping(value = "transactions", method = RequestMethod.POST)
@@ -50,9 +43,15 @@ public class LoyaltyProgramController {
 		return ResponseEntity.ok().build();
 	}
 
-	@RequestMapping(value = "history", method = RequestMethod.GET)
-	public List<WalletTransaction> history()
+	@RequestMapping(value = "history/{customerId}", method = RequestMethod.GET)
+	public List<WalletTransaction> history(@PathVariable String customerId)
 	{
-		return walletTransactionRepository.findAll();
+		return walletTransactionRepository.getTransactions(customerId);
+	}
+
+	@RequestMapping(value = "balance/{customerId}", method = RequestMethod.GET)
+	public Wallet balance(@PathVariable String customerId)
+	{
+		return walletService.getWallet(customerId);
 	}
 }

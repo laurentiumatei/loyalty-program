@@ -2,6 +2,7 @@ package com.exercise.loyalty.service;
 
 import com.exercise.loyalty.model.Wallet;
 import com.exercise.loyalty.model.WalletTransaction;
+import com.exercise.loyalty.model.WalletTransaction.TransactionType;
 import com.exercise.loyalty.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -25,13 +26,25 @@ public class WalletServiceImpl implements WalletService {
     {
         Wallet wallet = getWallet(walletTransaction.getCustomerId());
 
-        if (walletTransaction.getTransactionType() == WalletTransaction.TransactionType.DEBIT &&
+        if (walletTransaction.getTransactionType() == TransactionType.DEBIT &&
                 !walletHasEnoughPoints(wallet, walletTransaction))
         {
             throw new RuntimeException("Customer " + walletTransaction.getCustomerId() +
                     " does not have enough " + walletTransaction.getPointsType().toString().toLowerCase() +
                     " points.");
         }
+        BigDecimal pointsToAdd = getPointsToAdd(walletTransaction);
+        switch (walletTransaction.getPointsType()) {
+            case AVAILABLE:
+                wallet.setAvailablePoints(wallet.getAvailablePoints().add(pointsToAdd));
+                break;
+            case PENDING:
+                wallet.setPendingPoints(wallet.getPendingPoints().add(pointsToAdd));
+                break;
+            default:
+                throw new RuntimeException("Points type not supported: "+walletTransaction.getPointsType());
+        }
+        walletRepository.save(wallet);
     }
 
     @Override
@@ -59,5 +72,17 @@ public class WalletServiceImpl implements WalletService {
         wallet.setAvailablePoints(BigDecimal.ZERO);
         walletRepository.saveAndFlush(wallet);
         return wallet;
+    }
+
+    private BigDecimal getPointsToAdd(WalletTransaction walletTransaction)
+    {
+        switch (walletTransaction.getTransactionType()) {
+            case DEBIT:
+                return walletTransaction.getPointsAmount().negate();
+            case CREDIT:
+                return walletTransaction.getPointsAmount();
+            default:
+                throw new RuntimeException("Transaction type not supported: "+walletTransaction.getTransactionType());
+        }
     }
 }

@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 public class WalletTransactionServiceImpl implements WalletTransactionService {
@@ -26,6 +28,11 @@ public class WalletTransactionServiceImpl implements WalletTransactionService {
     {
         walletService.addToWallet(walletTransaction);
         walletTransactionRepository.save(walletTransaction);
+    }
+
+    @Override
+    public List<WalletTransaction> getTransactions(String customerId) {
+        return walletTransactionRepository.findAllByCustomerIdOrderByTimestampDesc(customerId);
     }
 
 }

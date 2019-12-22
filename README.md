@@ -24,7 +24,7 @@ GET: http://host:8080/api/history/{customerId}
 **Get the balance for a customer id:**
 GET: http://localhost:8080/api/balance/{customerId}
 
-**Trigger allocation of available points from pending points - *for testing purposes only*:**
+**Trigger allocation of available points from pending points - for testing purposes only:**
 GET: http://localhost:8080/api/allocateAvailablePoints
 Note:
 This command should be used only for testing purpose on a Sunday. *It does not work in other days of the week.*

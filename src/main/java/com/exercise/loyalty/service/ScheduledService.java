@@ -34,7 +34,10 @@ public class ScheduledService {
         this.walletTransactionRepository = walletTransactionRepository;
     }
 
-    @Scheduled(cron = "0 0 23 * * SUN") //runs every Sunday at 23:00
+    /*should run every Sunday at 23:00, although I did not manage to make in run automatically on my PC
+    TODO Find the correct cron expression
+    */
+    @Scheduled(cron = "0 0 23 * * SUN")
     public void allocateAvailablePoints() {
         logger.info("Trying to allocate pending points to available points...");
         List<Wallet> wallets = walletRepository.findAll();

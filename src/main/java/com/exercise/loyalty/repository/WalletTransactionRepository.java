@@ -9,4 +9,9 @@ import java.util.List;
 @Repository
 public interface WalletTransactionRepository extends JpaRepository<WalletTransaction, Long> {
     List<WalletTransaction> findAllByCustomerIdOrderByTimestampDesc(String customerId);
+    List<WalletTransaction> findAllByCustomerIdAndPointsTypeAndTransactionTypeOrderByTimestampDesc(
+            String customerId,
+            WalletTransaction.PointsType pointsType,
+            WalletTransaction.TransactionType transactionType
+    );
 }

@@ -1,24 +1,34 @@
 package com.exercise.loyalty.service;
 
+import com.exercise.loyalty.helper.WalletTransactionHelper;
 import com.exercise.loyalty.model.Wallet;
 import com.exercise.loyalty.model.WalletTransaction;
 import com.exercise.loyalty.model.WalletTransaction.TransactionType;
 import com.exercise.loyalty.repository.WalletRepository;
+import com.exercise.loyalty.repository.WalletTransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.List;
 
 @Repository
 @Transactional
 public class WalletServiceImpl implements WalletService {
 
     private final WalletRepository walletRepository;
+    private final WalletTransactionRepository walletTransactionRepository;
+
+    private static final int WEEKS_SINCE_LAST_TRANSACTION = 5;
 
     @Autowired
-    public WalletServiceImpl(WalletRepository walletRepository) {
+    public WalletServiceImpl(WalletRepository walletRepository, WalletTransactionRepository walletTransactionRepository) {
         this.walletRepository = walletRepository;
+        this.walletTransactionRepository = walletTransactionRepository;
     }
 
     @Override
@@ -49,8 +59,19 @@ public class WalletServiceImpl implements WalletService {
 
     @Override
     public Wallet getWallet(String customerId) {
-        return walletRepository.findByCustomerId(customerId)
-                .orElseGet(() -> createWallet(customerId));
+        Wallet wallet = walletRepository.findByCustomerId(customerId).orElseGet(() -> createWallet(customerId));
+        if (!isFlat(wallet) && isPreviousCreditPendingPointsTransactionTooOld(customerId))
+        {
+            return resetWallet(wallet);
+        }
+
+        return wallet;
+    }
+
+    private Wallet resetWallet(Wallet wallet) {
+        wallet.setPendingPoints(BigDecimal.ZERO);
+        wallet.setAvailablePoints(BigDecimal.ZERO);
+        return walletRepository.save(wallet);
     }
 
     private boolean walletHasEnoughPoints(Wallet wallet, WalletTransaction walletTransaction) {
@@ -70,8 +91,7 @@ public class WalletServiceImpl implements WalletService {
         wallet.setCustomerId(customerId);
         wallet.setPendingPoints(BigDecimal.ZERO);
         wallet.setAvailablePoints(BigDecimal.ZERO);
-        walletRepository.saveAndFlush(wallet);
-        return wallet;
+        return walletRepository.save(wallet);
     }
 
     private BigDecimal getPointsToAdd(WalletTransaction walletTransaction)
@@ -84,5 +104,26 @@ public class WalletServiceImpl implements WalletService {
             default:
                 throw new RuntimeException("Transaction type not supported: "+walletTransaction.getTransactionType());
         }
+    }
+
+    private boolean isPreviousCreditPendingPointsTransactionTooOld(String customerId)
+    {
+        List<WalletTransaction> walletTransactions =
+                walletTransactionRepository.findAllByCustomerIdAndPointsTypeAndTransactionTypeOrderByTimestampDesc(
+                        customerId, WalletTransaction.PointsType.PENDING, TransactionType.CREDIT);
+
+        if (walletTransactions.size() == 0) {
+            return false;
+        }
+
+        Date previousTransactionTimestamp = walletTransactions.get(0).getTimestamp();
+        LocalDateTime previousTransactionLocalDateTime = WalletTransactionHelper.convertToLocalDateTime(previousTransactionTimestamp);
+        long weeks = ChronoUnit.WEEKS.between(previousTransactionLocalDateTime, LocalDateTime.now());
+
+        return weeks > WEEKS_SINCE_LAST_TRANSACTION;
+    }
+
+    private boolean isFlat(Wallet wallet) {
+        return wallet.getPendingPoints().equals(BigDecimal.ZERO) && wallet.getAvailablePoints().equals(BigDecimal.ZERO);
     }
 }

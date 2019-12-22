@@ -1,11 +1,17 @@
 package com.exercise.loyalty.service;
 
+import com.exercise.loyalty.helper.WalletTransactionHelper;
 import com.exercise.loyalty.model.WalletTransaction;
+import com.exercise.loyalty.model.WalletTransaction.PointsType;
+import com.exercise.loyalty.model.WalletTransaction.TransactionType;
 import com.exercise.loyalty.repository.WalletTransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -31,8 +37,7 @@ public class WalletTransactionServiceImpl implements WalletTransactionService {
     }
 
     @Override
-    public List<WalletTransaction> getTransactions(String customerId) {
+    public List<WalletTransaction> getWalletTransactions(String customerId) {
         return walletTransactionRepository.findAllByCustomerIdOrderByTimestampDesc(customerId);
     }
-
 }

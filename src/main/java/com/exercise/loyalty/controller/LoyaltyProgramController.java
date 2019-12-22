@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.exercise.loyalty.model.Transaction;
-import com.exercise.loyalty.repository.TransactionRepository;
 
 @RestController
 @RequestMapping("/api/")
@@ -46,7 +45,7 @@ public class LoyaltyProgramController {
 	@RequestMapping(value = "history/{customerId}", method = RequestMethod.GET)
 	public List<WalletTransaction> history(@PathVariable String customerId)
 	{
-		return walletTransactionRepository.getTransactions(customerId);
+		return walletTransactionRepository.getWalletTransactions(customerId);
 	}
 
 	@RequestMapping(value = "balance/{customerId}", method = RequestMethod.GET)

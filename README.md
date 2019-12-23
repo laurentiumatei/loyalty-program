@@ -1,5 +1,20 @@
 # loyalty-program
-Simple Spring Boot REST service for acquiring points corresponding to the money spent in a transaction.
+Spring Boot based REST service to simulate a loyalty program based on money spent with a financial entity. A customer aquires points at each transaction, based on the money spent for that transaction.
+
+## How a customer can acquire new points:
+Every euro spent on one transaction will give the customer:
+- 1 pending point for every euro until 5000 euro value of transaction
+- 2 pending points for every euro from 5001 euro to 7500 euro value of transaction
+- 3 pending points from 7501 euro value of transaction
+
+New pending points become available points for use at the end of every week if:
+- the customer has spent at least 500 euro that week
+- at least one transaction exists for that customer on every day of the week
+
+A user will lose all the points if no transaction was made in the last 5 weeks.
+
+## How a customer can use the available points:
+User can use some or all available points. Every point is worth 1 eurocent.
 
 ## Usage
 

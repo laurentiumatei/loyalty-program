@@ -15,7 +15,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.temporal.ChronoField;
 import java.util.Date;
 import java.util.List;
 
@@ -24,6 +23,7 @@ import java.util.List;
 public class ScheduledService {
 
     private static final BigDecimal MINIMUM_PENDING_POINTS = BigDecimal.valueOf(500);
+    private static final int DAYS_AGO_TO_SEARCH_TRANSACTIONS = 6;
     private final WalletRepository walletRepository;
     private final WalletTransactionRepository walletTransactionRepository;
     private Logger logger = LoggerFactory.getLogger(ScheduledService.class);
@@ -39,18 +39,24 @@ public class ScheduledService {
     */
     @Scheduled(cron = "0 0 23 * * SUN")
     public void allocateAvailablePoints() {
-        logger.info("Trying to allocate pending points to available points...");
+        logger.info("Starting allocation of available points...");
         List<Wallet> wallets = walletRepository.findAll();
         wallets.stream().filter(w -> w.getPendingPoints().compareTo(BigDecimal.ZERO) > 0)
                 .forEach(this::allocateAvailablePoints);
+        logger.info("Finished allocation of available points.");
     }
 
     private void allocateAvailablePoints(Wallet wallet) {
-        boolean atLeastOneTransactionExistsOnEveryDayOfTheWeek =
-                atLeastOneTransactionExistsOnEveryDayOfTheWeek(wallet.getCustomerId());
-        boolean isMinimumAmountSpentThisWeek = isMinimumAmountSpentThisWeek(wallet.getCustomerId());
+        logger.info("Checking customerId: " + wallet.getCustomerId());
 
-        if (atLeastOneTransactionExistsOnEveryDayOfTheWeek && isMinimumAmountSpentThisWeek) {
+        boolean atLeastOneTransactionExistsOnEveryDay =
+                atLeastOneTransactionExistsOnEveryDayOfTheWeek(wallet.getCustomerId());
+        boolean isMinimumAmountSpent = isMinimumAmountSpentThisWeek(wallet.getCustomerId());
+        logger.info("Is minimum amount spent this week: " + isMinimumAmountSpent);
+        logger.info("At least one transaction exists on every day of the week: " + atLeastOneTransactionExistsOnEveryDay);
+
+        if (atLeastOneTransactionExistsOnEveryDay && isMinimumAmountSpent) {
+            logger.info("Allocating " + wallet.getPendingPoints() + " available points");
             wallet.setAvailablePoints(wallet.getAvailablePoints().add(wallet.getPendingPoints()));
             wallet.setPendingPoints(BigDecimal.ZERO);
         }
@@ -58,10 +64,9 @@ public class ScheduledService {
     }
 
     private boolean atLeastOneTransactionExistsOnEveryDayOfTheWeek(String customerId) {
-        for (int i = 1; i <= 7; i++) {
-
-            Date startOfDay = getDateInDayOfWeek(i);
-            Date startOfNextDay = getDateStartOfNextDayOfWeek(i);
+        for (int i = DAYS_AGO_TO_SEARCH_TRANSACTIONS; i >= 1; i--) {
+            Date startOfDay = getStartOfDayDaysAgo(i);
+            Date startOfNextDay = getStartOfDayDaysAgo(i - 1);
             List<WalletTransaction> walletTransactions = getWalletTransactionsBetween(customerId, startOfDay, startOfNextDay);
             if (walletTransactions.isEmpty()) {
                 logger.info("No transactions found on date: " + startOfDay);
@@ -72,14 +77,14 @@ public class ScheduledService {
     }
 
     private boolean isMinimumAmountSpentThisWeek(String customerId) {
-        Date beginningOfWeekDate = getDateInDayOfWeek(1);
+        Date beginningOfWeekDate = getStartOfDayDaysAgo(DAYS_AGO_TO_SEARCH_TRANSACTIONS);
 
         List<WalletTransaction> walletTransactions = getWalletTransactionsBetween(customerId, beginningOfWeekDate, new Date());
         BigDecimal sumOfTransactions = walletTransactions.stream()
                 .map(WalletTransaction::getPointsAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        logger.info("Pending points accumulated this week: " + sumOfTransactions);
+        logger.info("CustomerId " + customerId + "  accumulated " + sumOfTransactions + " pending points this week.");
         return sumOfTransactions.compareTo(MINIMUM_PENDING_POINTS) >= 0;
     }
 
@@ -92,13 +97,8 @@ public class ScheduledService {
                 endDate);
     }
 
-    private Date getDateInDayOfWeek(int dayOfWeek) {
-        LocalDateTime beginningOfDay = LocalDate.now().with(ChronoField.DAY_OF_WEEK, dayOfWeek).atStartOfDay();
+    private Date getStartOfDayDaysAgo(int daysAgo) {
+        LocalDateTime beginningOfDay = LocalDate.now().minusDays(daysAgo).atStartOfDay();
         return Date.from(beginningOfDay.atZone(ZoneId.systemDefault()).toInstant());
-    }
-
-    private Date getDateStartOfNextDayOfWeek(int dayOfWeek) {
-        LocalDateTime beginningOfNextDay = LocalDate.now().with(ChronoField.DAY_OF_WEEK, dayOfWeek).atStartOfDay().plusDays(1);
-        return Date.from(beginningOfNextDay.atZone(ZoneId.systemDefault()).toInstant());
     }
 }

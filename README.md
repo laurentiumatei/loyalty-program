@@ -17,6 +17,7 @@ A user will lose all the points if no transaction was made in the last 5 weeks.
 User can use some or all available points. Every point is worth 1 eurocent.
 
 ## Usage
+Persistence is done via H2 which is using an in-memory DB. Another DB engine can be configured in *application.properties* file.
 
 **Add a new transaction:**
 - POST http://host:8080/api/transaction

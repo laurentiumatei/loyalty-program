@@ -30,10 +30,9 @@ Field details:
 - GET: http://localhost:8080/api/allocateAvailablePoints
 
 Note:
-This command should be used only for testing purpose. * Should be called only a Sunday. It does not work correctly in other days of the week.*
-Automatic triggering should take place every Sunday at 23:00.
+This command should be used only for testing purpose. Automatic triggering should take place every Sunday at 23:00.
 
 ## Known issues
-- Although the logic for allocating available points from pending point is correct, I did not manage to find the correct Spring cron expression to make it trigger automatically every Sunday at 23:00.
+- Although the logic for allocating available points from pending point is correct, on my machine Spring does not trigger it automatically. I might not have find the correct Spring cron expression.
 - There is no proper error handling with proper HTTP Status codes.
 - There is no input validation for adding a transaction.

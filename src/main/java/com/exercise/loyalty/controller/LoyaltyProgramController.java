@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -36,8 +37,13 @@ public class LoyaltyProgramController {
 
     @RequestMapping(value = "transaction", method = RequestMethod.POST)
     public ResponseEntity<String> addTransaction(@RequestBody Transaction transaction) {
+        if (transaction.getValue().compareTo(BigDecimal.ZERO) <= 0)
+        {
+            return ResponseEntity.badRequest().body("Value of the transaction must be grater than 0.");
+        }
+
         loyaltyProgramService.addTransaction(transaction);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.accepted().build();
     }
 
     @RequestMapping(value = "history/{customerId}", method = RequestMethod.GET)

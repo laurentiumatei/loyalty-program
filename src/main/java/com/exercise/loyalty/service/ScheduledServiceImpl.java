@@ -62,12 +62,12 @@ public class ScheduledServiceImpl implements ScheduledService {
     }
 
     private boolean atLeastOneTransactionExistsOnEveryDayOfTheWeek(String customerId) {
-        for (int i = DAYS_AGO_TO_SEARCH_TRANSACTIONS; i >= 1; i--) {
+        for (int i = DAYS_AGO_TO_SEARCH_TRANSACTIONS; i >= 0; i--) {
             Date startOfDay = getStartOfDayDaysAgo(i);
             Date startOfNextDay = getStartOfDayDaysAgo(i - 1);
             List<WalletTransaction> walletTransactions = getWalletTransactionsBetween(customerId, startOfDay, startOfNextDay);
             if (walletTransactions.isEmpty()) {
-                logger.info("No transactions found on date: " + startOfDay);
+                logger.info("No transactions found between: " + startOfDay + " and: " + startOfNextDay);
                 return false;
             }
         }

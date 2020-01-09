@@ -1,5 +1,5 @@
 # loyalty-program
-Spring Boot based REST service to simulate a loyalty program based on money spent with a financial entity. A customer aquires points at each transaction, based on the money spent for that transaction.
+Simple Spring Boot based REST service to simulate a loyalty program based on money spent with a financial entity. A customer acquires points at each transaction, based on the money spent for that transaction.
 
 ## How a customer can acquire new points:
 Every euro spent on one transaction will give the customer:
@@ -34,19 +34,19 @@ Field details:
 
  - *customerId*: the id of the customer of the transaction
  - *value*: money value of the transaction
- - *fundSource*: source of funds for the transaction: CASH - when transaction is payed with real money, WALLET - when transaction is payed with money converted from available points
+ - *fundSource*: source of funds for the transaction: CASH - when transaction is paid with real money, WALLET - when transaction is paid with money converted from available points
 
 **Get transaction history for a customer id:**
 - GET: http://host:8080/api/history/{customerId}
 
 **Get the balance for a customer id:**
-- GET: http://localhost:8080/api/balance/{customerId}
+- GET: http://host:8080/api/balance/{customerId}
 
 **Trigger allocation of available points from pending points - for testing purposes only:**
-- GET: http://localhost:8080/api/allocateAvailablePoints
+- GET: http://host:8080/api/allocateAvailablePoints
 
 Note:
-This command should be used only for testing purpose. Automatic triggering should take place every Sunday at 23:00.
+This command should be used only for testing purpose. Automatic triggering should take place every Sunday at 23:00 (server local time).
 
 ## Known issues
 - Although the logic for allocating available points from pending point is correct, on my machine Spring does not trigger it automatically. I might not have find the correct Spring cron expression.

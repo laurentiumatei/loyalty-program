@@ -1,6 +1,6 @@
 package com.exercise.loyalty.service;
 
-import com.exercise.loyalty.helper.WalletTransactionHelper;
+import com.exercise.loyalty.helper.DateTimeHelper;
 import com.exercise.loyalty.model.Wallet;
 import com.exercise.loyalty.model.WalletTransaction;
 import com.exercise.loyalty.model.WalletTransaction.TransactionType;
@@ -111,7 +111,7 @@ public class WalletServiceImpl implements WalletService {
         }
 
         Date previousTransactionTimestamp = walletTransactions.get(0).getTimestamp();
-        LocalDateTime previousTransactionLocalDateTime = WalletTransactionHelper.convertToLocalDateTime(previousTransactionTimestamp);
+        LocalDateTime previousTransactionLocalDateTime = DateTimeHelper.convertToLocalDateTime(previousTransactionTimestamp);
         long weeks = ChronoUnit.WEEKS.between(previousTransactionLocalDateTime, LocalDateTime.now());
 
         return weeks > WEEKS_SINCE_LAST_TRANSACTION;

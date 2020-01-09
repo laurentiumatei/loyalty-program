@@ -24,9 +24,6 @@ public class WalletTransaction {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss z")
     private Date timestamp;
 
-    public WalletTransaction() {
-    }
-
     public Long getId() {
         return id;
     }

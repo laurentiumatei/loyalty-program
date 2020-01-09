@@ -21,18 +21,18 @@ public class LoyaltyProgramController {
     private final TransactionService loyaltyProgramService;
     private final WalletTransactionService walletTransactionRepository;
     private final WalletService walletService;
-
-    @Autowired
-    private ScheduledService scheduledService;
+    private final ScheduledService scheduledService;
 
     @Autowired
     public LoyaltyProgramController(
             TransactionService loyaltyProgramService,
             WalletTransactionService walletTransactionService,
-            WalletService walletService) {
+            WalletService walletService,
+            ScheduledService scheduledService) {
         this.loyaltyProgramService = loyaltyProgramService;
         this.walletTransactionRepository = walletTransactionService;
         this.walletService = walletService;
+        this.scheduledService = scheduledService;
     }
 
     @RequestMapping(value = "transaction", method = RequestMethod.POST)

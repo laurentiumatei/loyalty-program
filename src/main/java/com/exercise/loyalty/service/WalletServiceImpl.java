@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Transactional
@@ -101,18 +102,18 @@ public class WalletServiceImpl implements WalletService {
         }
     }
 
-    private boolean isPreviousCreditPendingPointsTransactionTooOld(String customerId) {
-        List<WalletTransaction> walletTransactions =
-                walletTransactionRepository.findAllByCustomerIdAndPointsTypeAndTransactionTypeOrderByTimestampDesc(
-                        customerId, WalletTransaction.PointsType.PENDING, TransactionType.CREDIT);
-
-        if (walletTransactions.size() == 0) {
-            return false;
+    private boolean isPreviousCreditPendingPointsTransactionTooOld(String customerId) {        
+        Optional<WalletTransaction> lastTransaction =
+        		walletTransactionRepository.findFirstByCustomerIdAndPointsTypeAndTransactionTypeOrderByTimestampDesc(
+        				customerId, WalletTransaction.PointsType.PENDING, TransactionType.CREDIT);
+        
+        if (!lastTransaction.isPresent())
+        {
+        	return false;
         }
 
-        Date previousTransactionTimestamp = walletTransactions.get(0).getTimestamp();
-        LocalDateTime previousTransactionLocalDateTime = DateTimeHelper.convertToLocalDateTime(previousTransactionTimestamp);
-        long weeks = ChronoUnit.WEEKS.between(previousTransactionLocalDateTime, LocalDateTime.now());
+        LocalDateTime lastTransactionDateTime = DateTimeHelper.convertToLocalDateTime(lastTransaction.get().getTimestamp());
+        long weeks = ChronoUnit.WEEKS.between(lastTransactionDateTime, LocalDateTime.now());
 
         return weeks > WEEKS_SINCE_LAST_TRANSACTION;
     }

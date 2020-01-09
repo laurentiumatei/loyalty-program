@@ -6,12 +6,13 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface WalletTransactionRepository extends JpaRepository<WalletTransaction, Long> {
     List<WalletTransaction> findAllByCustomerIdOrderByTimestampDesc(String customerId);
-
-    List<WalletTransaction> findAllByCustomerIdAndPointsTypeAndTransactionTypeOrderByTimestampDesc(
+    
+    Optional<WalletTransaction> findFirstByCustomerIdAndPointsTypeAndTransactionTypeOrderByTimestampDesc(
             String customerId,
             WalletTransaction.PointsType pointsType,
             WalletTransaction.TransactionType transactionType

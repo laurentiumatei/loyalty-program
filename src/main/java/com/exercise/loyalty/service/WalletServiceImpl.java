@@ -13,8 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -119,6 +117,7 @@ public class WalletServiceImpl implements WalletService {
     }
 
     private boolean isFlat(Wallet wallet) {
-        return wallet.getPendingPoints().equals(BigDecimal.ZERO) && wallet.getAvailablePoints().equals(BigDecimal.ZERO);
+        return wallet.getPendingPoints().compareTo(BigDecimal.ZERO) == 0 &&
+                wallet.getAvailablePoints().compareTo(BigDecimal.ZERO) == 0;
     }
 }

@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 
+import static com.exercise.loyalty.helper.DateTimeHelper.convertToLocalDateTime;
+
 @Repository
 @Transactional
 public class WalletServiceImpl implements WalletService {
@@ -110,7 +112,7 @@ public class WalletServiceImpl implements WalletService {
         	return false;
         }
 
-        LocalDateTime lastTransactionDateTime = DateTimeHelper.convertToLocalDateTime(lastTransaction.get().getTimestamp());
+        LocalDateTime lastTransactionDateTime = convertToLocalDateTime(lastTransaction.get().getTimestamp());
         long weeks = ChronoUnit.WEEKS.between(lastTransactionDateTime, LocalDateTime.now());
 
         return weeks > WEEKS_SINCE_LAST_TRANSACTION;
